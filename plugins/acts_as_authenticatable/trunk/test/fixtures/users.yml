@@ -1,0 +1,23 @@
+jessie:
+  id: 1
+  email: jessie@summers.com
+  firstname: Jessie
+  lastname: Summers
+  salted_password: 69a315d2a825082405dd44b378aaa1720d925e65 # alongtest
+  salt: 50121bde7ba7ab73426e8587814b8ec2520963d5
+  security_token: d7c691e6ad396f5a1a4d5572a326c1568cb5b5e8
+  token_expiry: "2007-06-13 16:00:12"
+  created_at: "2007-06-12 16:00:12"
+  verified: true
+
+john:
+  id: 2
+  email: johndoe@test.com
+  firstname: John
+  lastname: Doe
+  salted_password: 739f4b5d5b86de9515037783b0594cb577a2bbc8 # alongtest
+  salt: e0c8f73a035698b96c18065e3690273a
+  security_token: 4150c72f9a98fbff4d3908126100ebaeeb390df1
+  token_expiry: "2007-04-13 16:00:12"
+  created_at: "2007-04-12 16:00:12"
+  verified: true

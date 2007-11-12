@@ -1,0 +1,11 @@
+krystal:
+  id: 1
+  account_number: 123456
+  firstname: Krystal
+  lastname: Steal
+  salted_password: 69a315d2a825082405dd44b378aaa1720d925e65 # alongtest
+  salt: 50121bde7ba7ab73426e8587814b8ec2520963d5
+  security_token: d7c691e6ad396f5a1a4d5572a326c1568cb5b5e8
+  token_expiry: "2007-06-13 16:00:12"
+  created_at: "2007-06-12 16:00:12"
+  verified: true
