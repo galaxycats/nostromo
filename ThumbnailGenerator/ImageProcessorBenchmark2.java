@@ -46,6 +46,8 @@ public class ImageProcessorBenchmark2 {
      startTime = System.currentTimeMillis();
      for(int j = 0; j < n; j++) {
        // Generate Thumbnails for all test images in './output'
+       Runtime rt = Runtime.getRuntime();
+       Process proc = rt.getRuntime().exec("");
      }
      stopTime = System.currentTimeMillis();
      accumulatedTime += (stopTime - startTime);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <wand/MagickWand.h>
 
-int main(int argc,char **argv)
+int main()
 {
 #define ThrowWandException(wand) \
 { \
@@ -24,29 +24,43 @@ int main(int argc,char **argv)
   MagickWand
     *magick_wand;
 
-  if (argc != 3)
-    {
-      (void) fprintf(stdout,"Usage: %s image thumbnail\n",argv[0]);
-      exit(0);
-    }
+  // if (argc != 3)
+  //   {
+  //     (void) fprintf(stdout,"Usage: %s image thumbnail\n",argv[0]);
+  //     exit(0);
+  //   }
   /*
     Read an image.
   */
   MagickWandGenesis();
   magick_wand=NewMagickWand();
-  status=MagickReadImage(magick_wand,argv[1]);
+  status=MagickReadImage(magick_wand,'sample_images/1920x1200.jpg');
   if (status == MagickFalse)
     ThrowWandException(magick_wand);
   /*
     Turn the images into a thumbnail sequence.
   */
+  int num_sizes = 6;
+  int sizes[num_sizes];
+  sizes[0] = 60;
+  sizes[1] = 85;
+  sizes[2] = 100;
+  sizes[3] = 240;
+  sizes[4] = 600;
+  sizes[5] = 640;
+  
+  int i;
   MagickResetIterator(magick_wand);
   while (MagickNextImage(magick_wand) != MagickFalse)
-    MagickResizeImage(magick_wand,640,400,LanczosFilter,1.0);
+    for(i = 0; i < num_sizes; ++i)
+    {
+      MagickThumbnailImage(magick_wand,sizes[i],sizes[i]/1.33);
+      MagickExtentImage(magick_wand,sizes[i],sizes[i]/1.33,sizes[i]/2,(sizes[i]/1.33)/2);
+      status=MagickWriteImages(magick_wand,'output/THUMB-1920.jpg',MagickTrue);
+    }
   /*
     Write the image then destroy it.
   */
-  status=MagickWriteImages(magick_wand,argv[2],MagickTrue);
   if (status == MagickFalse)
     ThrowWandException(magick_wand);
   magick_wand=DestroyMagickWand(magick_wand);
