@@ -22,25 +22,24 @@
  */
 public class BenchmarkingThread extends Thread {
 
-  private String pathToImage;
-  private int[] sizesToGenerate;
+  private ImageProcessor imageProcessor;
+  private int runs;
+  private String nameOfImage;
 
-  public BenchmarkingThread(String pathToImage, int[] sizesToGenerate) {
-    this.pathToImage = pathToImage;
-    this.sizesToGenerate = sizesToGenerate;
-  }
-
-  public String getPathToImage() {
-    return this.pathToImage;
-  }
-
-  public int[] getSizeToGenerate() {
-    return this.sizesToGenerate;
+  public BenchmarkingThread(ImageProcessor imageProcessor, int runs, String nameOfImage) {
+    this.imageProcessor = imageProcessor;
+    this.runs = runs;
+    this.nameOfImage = nameOfImage;
   }
 
   public void run() {
-    ImageProcessor imageProcessor = new ImageProcessor(getSizeToGenerate(), getPathToImage(), "./output", 80);
-    imageProcessor.createThumbnailsForAllImageSizes();
+    long startTime, stopTime;
+    startTime = System.currentTimeMillis();
+    for(int i = 0; i < runs; i++) {
+      imageProcessor.createThumbnailsForAllImageSizes();
+    }
+    stopTime = System.currentTimeMillis();
+    System.out.println("Time taken to generate thumbnails for '" + nameOfImage + "': " + (stopTime - startTime));
   }
 
 }

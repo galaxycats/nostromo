@@ -1,6 +1,4 @@
-import javax.media.jai.UntiledOpImage;
-
-public class ImageProcessorBenchmark {
+public class ImageProcessorBenchmark2 {
 
   public static final int IMAGE_SIZE_THUMB                 = 60;
   public static final int IMAGE_SIZE_THUMB_LIST            = 85;
@@ -44,28 +42,15 @@ public class ImageProcessorBenchmark {
     long startTime, stopTime;
     long accumulatedTime = 0;
 
-    // Generate Threads
-    BenchmarkingThread[] threads = new BenchmarkingThread[6];
-    for (int i = 0; i < threads.length; i++) {
-      ImageProcessor imageProcessor = new ImageProcessor(sizesToGenerate, testImages[i], "./output", 80);
-      threads[i] = new BenchmarkingThread(imageProcessor, n, testImages[i]);
-    }
-
-    for(int i = 0; i < threads.length; i++) {
-      threads[i].start();
-//      accumulatedTime += (stopTime - startTime);
-    }
-
-//    for(int i = 0; i < testImages.length; i++) {
-//      ImageProcessor imageProcessor = new ImageProcessor(sizesToGenerate, testImages[i], "./output", 80);
-//      startTime = System.currentTimeMillis();
-//      for(int j = 0; j < n; j++) {
-//        imageProcessor.createThumbnailsForAllImageSizes();
-//      }
-//      stopTime = System.currentTimeMillis();
-//      accumulatedTime += (stopTime - startTime);
-//      System.out.println("Time taken to generate thumbnails for '" + testImages[i] + "': " + (stopTime - startTime) + " (" + accumulatedTime + ")");
-//    }
+   for(int i = 0; i < testImages.length; i++) {
+     startTime = System.currentTimeMillis();
+     for(int j = 0; j < n; j++) {
+       // Generate Thumbnails for all test images in './output'
+     }
+     stopTime = System.currentTimeMillis();
+     accumulatedTime += (stopTime - startTime);
+     System.out.println("Time taken to generate thumbnails for '" + testImages[i] + "': " + (stopTime - startTime) + " (" + accumulatedTime + ")");
+   }
 
     System.out.println();
     System.out.println();

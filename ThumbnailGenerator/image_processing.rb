@@ -41,7 +41,30 @@ end
 
 
 n = 50
-puts "Performing Benchmark with #{n} runs ..."
+puts "Performing Benchmark with #{n} runs ... (Ruby Wrapper Call)"
+puts
+Benchmark.bmbm(10) do |x|
+  x.report("1920x1200 Image") { n.times { VALID_THUMB_SIZES.each { |size| create_thumbnail(image_1920, size) } } }
+  x.report("1600x1000 Image") { n.times { VALID_THUMB_SIZES.each { |size| create_thumbnail(image_1600, size) } } }
+  x.report("1280x800 Image")  { n.times { VALID_THUMB_SIZES.each { |size| create_thumbnail(image_1280, size) } } }
+  x.report("1024x640 Image")  { n.times { VALID_THUMB_SIZES.each { |size| create_thumbnail(image_1024, size) } } }
+  x.report("800x500 Image")   { n.times { VALID_THUMB_SIZES.each { |size| create_thumbnail(image_800, size) } } }
+  x.report("640x400 Image")   { n.times { VALID_THUMB_SIZES.each { |size| create_thumbnail(image_640, size) } } }
+end
+
+
+# System Call
+# Resize:
+# convert '*.jpg[120x120]' thumbnail%03d.png
+# convert '*.jpg' -resize 120x120 thumbnail%03d.png
+# Crop:
+# convert '*.jpg[120x120+10+5]' thumbnail%03d.png
+# convert '*.jpg' -crop 120x120+10+5 thumbnail%03d.png
+# Border
+# convert '*.jpg' -border 150
+
+puts
+puts "Performing Benchmark with #{n} runs ... (System Call)"
 puts
 Benchmark.bmbm(10) do |x|
   x.report("1920x1200 Image") { n.times { VALID_THUMB_SIZES.each { |size| create_thumbnail(image_1920, size) } } }
