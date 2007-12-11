@@ -20,14 +20,13 @@ public class ImageProcessorBenchmark {
     System.out.println("Preparing benchmark ...");
     System.out.println();
 
-    int[] sizesToGenerate = new int[7];
+    int[] sizesToGenerate = new int[6];
     sizesToGenerate[0] = IMAGE_SIZE_THUMB;
     sizesToGenerate[1] = IMAGE_SIZE_THUMB_LIST;
-    sizesToGenerate[2] = IMAGE_SIZE_THUMB_DETAIL_VIEW;
-    sizesToGenerate[3] = IMAGE_SIZE_TOPOFFERED;
-    sizesToGenerate[4] = IMAGE_SIZE_TOPOFFERED_BIG;
-    sizesToGenerate[5] = IMAGE_SIZE_BIG;
-    sizesToGenerate[6] = IMAGE_SIZE_XXL;
+    sizesToGenerate[2] = IMAGE_SIZE_TOPOFFERED;
+    sizesToGenerate[3] = IMAGE_SIZE_TOPOFFERED_BIG;
+    sizesToGenerate[4] = IMAGE_SIZE_BIG;
+    sizesToGenerate[5] = IMAGE_SIZE_XXL;
 
     String[] testImages = new String[6];
     testImages[0] = "./sample_images/1920x1200.jpg";
@@ -47,8 +46,10 @@ public class ImageProcessorBenchmark {
     // Generate Threads
     BenchmarkingThread[] threads = new BenchmarkingThread[6];
     for (int i = 0; i < threads.length; i++) {
-      ImageProcessor imageProcessor = new ImageProcessor(sizesToGenerate, testImages[i], "./output", 80);
-      threads[i] = new BenchmarkingThread(imageProcessor, n, testImages[i]);
+      // This is not real world stuff, cause we are reading every image before generating its thumbnails
+//      ImageProcessor imageProcessor = new ImageProcessor(sizesToGenerate, testImages[i], "./output", 80);
+//      threads[i] = new BenchmarkingThread(imageProcessor, n, testImages[i]);
+      threads[i] = new BenchmarkingThread(sizesToGenerate, testImages[i], "./output", 80, n);
     }
 
     for(int i = 0; i < threads.length; i++) {
