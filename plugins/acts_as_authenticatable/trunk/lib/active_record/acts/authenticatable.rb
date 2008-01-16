@@ -2,6 +2,12 @@ module ActiveRecord
   module Acts
     module Authenticatable
       def self.included(base) # :nodoc:
+        begin
+          Digest::SHA1
+        rescue
+          require 'digest/sha1'
+        end
+        
         base.extend ClassMethods
       end
 
@@ -10,15 +16,21 @@ module ActiveRecord
         def acts_as_authenticatable(options = {})
           unless authenticatable? # don't let AR call this twice
             cattr_accessor :login
-            self.login = options[:login] || :email
             
-            validates_presence_of :security_token
-            validates_presence_of :token_expiry
-            validates_presence_of :email # TODO
+            # email as default login
+            self.login = options[:login] || :email
+            validates_presence_of self.login
+            validates_length_of self.login, :within => 3..100
+            
+            validates_format_of :new_email, :allow_nil => true,
+              :with => /^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i,  
+              :if => Proc.new { |user| !user.new_email.nil? }
+            
+            validates_presence_of :security_token, :if => Proc.new { |user| !user.verified? }
+            validates_presence_of :token_expiry, :if => Proc.new { |user| !user.verified? }
             validates_presence_of :password, :if => :new_record?
             validates_confirmation_of :password, :if => :new_record?
-            validates_length_of :email, :within => 3..100
-            validates_length_of :password, :within => 5..40, :if => :new_record?, :message => "password_at_least_5_chars"
+            validates_length_of :password, :within => 5..40, :if => :new_record_password_should_be_changed, :message => "password_at_least_5_chars"
             
             before_validation :create_security_token_and_its_expiry_date
             after_validation :crypt_password
@@ -43,33 +55,31 @@ module ActiveRecord
           # self.security_token and self.token_expiry and (Time.now > self.token_expiry)
         end
 
-        def update_expiry
-          # write_attribute('token_expiry', [self.token_expiry, Time.at(Time.now.to_i + 600 * 1000)].min)
-          # write_attribute('authenticated_by_token', true)
-          # write_attribute("verified", 1)
-          # update_without_callbacks
-        end
-
-        def set_delete_after
-          # hours = UserSystem::CONFIG[:delayed_delete_days] * 24
-          # write_attribute('deleted', 1)
-          # write_attribute('delete_after', Time.at(Time.now.to_i + hours * 60 * 60))
-          # 
-          # # Generate and return a token here, so that it expires at
-          # # the same time that the account deletion takes effect.
-          # return generate_security_token(hours)
+        def try_change_email(new_email, confirm_email)
+          if new_email.length > 0 && new_email == confirm_email 
+            self.new_email = new_email
+            create_security_token_and_its_expiry_date(true)
+            self.save
+          end
         end
 
         def change_password(pass, confirm = nil)
-          # self.password = pass
-          # self.password_confirmation = confirm.nil? ? pass : confirm
-          # @new_password = true
+          return if confirm && confirm != pass
+          @new_password = true
+          self.password = pass
+          crypt_password
         end
         
         def verify_by_token(token)
           if token == self.security_token && self.token_expiry >= Time.now.to_date
-            self.verified = true
-            return self.save
+            if !self.verified
+              self.verified = true
+            elsif self.new_email
+              self.email = self.new_email
+              self.new_email = nil
+            end
+            self.save
+            self
           else
             return nil
           end
@@ -81,21 +91,18 @@ module ActiveRecord
           end
           
           def crypt_password
-            self.salted_password = self.class.hashed(self.password, generate_salt) if new_record? # || @new_password
+            self.salted_password = self.class.hashed(self.password, generate_salt) if new_record? || @new_password
           end
           
-          def create_security_token_and_its_expiry_date
-            if new_record?
+          def create_security_token_and_its_expiry_date(force_new = false)
+            if new_record? || force_new
               set_token_expiry(Authenticatable.const_defined?("TOKEN_LIFETIME") ? TOKEN_LIFETIME : 1.day)
-              self.security_token = Digest::SHA1.hexdigest(self.token_expiry.to_s + rand.to_s)
+              set_security_token
             end
           end
 
-          def new_security_token(hours = nil)
-            # write_attribute('security_token', self.class.hashed(self.salted_password + Time.now.to_i.to_s + rand.to_s))
-            # write_attribute('token_expiry', Time.at(Time.now.to_i + token_lifetime(hours)))
-            # update_without_callbacks
-            # return self.security_token
+          def set_security_token
+            self.security_token = Digest::SHA1.hexdigest(self.token_expiry.to_s + rand.to_s)
           end
           
           def set_token_expiry(lifetime)
@@ -108,15 +115,21 @@ module ActiveRecord
             write_attribute("verified", val)
           end
           
+          def new_record_password_should_be_changed
+            self.new_record? || @new_password
+          end
           
         module ClassMethods
           def authenticate(login_credential, password)
+            # logger.debug("##### login_credential: #{login_credential}")
+            # logger.debug("##### login: #{login}")
             u = send("find_by_#{login}_and_verified", login_credential, true)
+            # logger.debug("##### u: #{u.inspect}")
             (u && u.salted_password == hashed(password, u.salt)) ? u : nil
           end
           
-          def verify(email, token)
-            u = send("find_by_#{login}", email).verify_by_token(token)
+          def verify(login, token)
+            u = send("find_by_#{self.login}", login).verify_by_token(token)
           end
 
           def hashed(str, salt)

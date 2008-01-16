@@ -1,5 +1,6 @@
 krystal:
   id: 1
+  email: hans@wurst.de
   account_number: 123456
   firstname: Krystal
   lastname: Steal

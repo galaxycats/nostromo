@@ -22,6 +22,7 @@ ActiveRecord::Base.silence do
     with_options :force => true do |m|
       m.create_table 'users' do |t|
         t.column :email, :string
+        t.column :new_email, :string
         t.column :firstname, :string
         t.column :lastname, :string
         t.column :verified, :boolean
@@ -34,6 +35,8 @@ ActiveRecord::Base.silence do
       end
 
       m.create_table 'accounts' do |t|
+        t.column :email, :string
+        t.column :new_email, :string
         t.column :account_number, :string
         t.column :firstname, :string
         t.column :lastname, :string
@@ -57,7 +60,7 @@ $LOAD_PATH.unshift(Test::Unit::TestCase.fixture_path)
 
 class Test::Unit::TestCase #:nodoc:
   def create_fixtures(*table_names)
-    puts "---- #{table_names.inspect}"
+    # puts "---- #{table_names.inspect}"
     if block_given?
       Fixtures.create_fixtures(Test::Unit::TestCase.fixture_path, table_names) { yield }
     else
