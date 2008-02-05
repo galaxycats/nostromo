@@ -13,6 +13,8 @@ namespace :rails do
     project_name = STDIN.gets.strip!
     system("svn mkdir #{svn_url}/#{project_name} -m 'ADDED - project to dir'")
     system("svn mkdir #{svn_url}/#{project_name}/trunk -m 'ADDED - initial trunk directory for the project'")
+    system("svn mkdir #{svn_url}/#{project_name}/branches -m 'ADDED - initial branches directory for the project'")
+    system("svn mkdir #{svn_url}/#{project_name}/tags -m 'ADDED - initial tags directory for the project'")
     system("svn checkout #{svn_url}/#{project_name}/trunk #{project_name}")
     system("cd #{project_name}; rails .")
     system("mv #{project_name}/config/database.{yml,yml.sample}")
