@@ -1,0 +1,30 @@
+namespace :rails do
+  desc "Sake Tasks for setting up a new Rails project and put into SVN"
+  task :setup_with_svn do
+    puts "-----------------------------------------------"
+    puts "| Setting up a Rails Project with SVN Support |"
+    puts "-----------------------------------------------"
+    puts
+    puts "Enter your SVN URL where the Rails projects will live ..."
+    print "> "
+    svn_url = STDIN.gets.strip!
+    puts "Enter the name of the Rails project ..."
+    print "> "
+    project_name = STDIN.gets.strip!
+    system("svn mkdir #{svn_url}/#{project_name} -m 'ADDED - project to dir'")
+    system("svn mkdir #{svn_url}/#{project_name}/trunk -m 'ADDED - initial trunk directory for the project'")
+    system("svn checkout #{svn_url}/#{project_name}/trunk #{project_name}")
+    system("cd #{project_name}; rails .")
+    system("mv #{project_name}/config/database.{yml,yml.sample}")
+    system("rm -rf #{project_name}/log/*")
+    system("rm -rf #{project_name}/tmp/*")
+    system("cd #{project_name}; svn status | grep '^? \+\(log\|tmp\)' -v | sed -e 's/? *//' | sed -e 's/ / /g' | xargs svn add")
+    system("svn propset svn:ignore '*' #{project_name}/log/")
+    system("svn propset svn:ignore '*' #{project_name}/tmp/")
+    system("svn propset svn:ignore 'database.yml' #{project_name}/config/")
+    system("cd #{project_name}; svn commit -m 'ADDED - the Rails Project has been added and all files that are not needed in the repo have been ignored.'")
+    system("cp #{project_name}/config/database.{yml.sample,yml}")
+    system("cd #{project_name}; rake tmp:create")
+    system("touch #{project_name}/log/{development,test,server,production}.log")
+  end
+end
